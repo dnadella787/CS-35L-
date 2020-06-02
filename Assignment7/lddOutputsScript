@@ -1,0 +1,10 @@
+#!/bin/bash
+
+executables="eu-readelf gst-typefind kded4 memhog oxygen-settings pstree sg xrdb"
+
+for x in $executables; do
+    ldd /usr/bin/"${x}"
+done
+
+
+

@@ -1,0 +1,22 @@
+#!/usr/bin/bash
+
+
+#remove all ?, <u>, and </u> from the document
+sed 's/?//g' | sed 's/<u>//g' | sed 's\</u>\\g' |
+    
+#translate grave accents -> apostrophe
+#translate dashes -> spaces
+tr "\`" "\'" | tr '-' ' '|
+
+#find all lines fitting the form A<tdX>W</td>Z    
+grep -E " *<td[^>]*>[pkmnwlhaeiouPKMNWLHAEIOU\' ]+<\/td> *" |
+
+#remove all A<tdX> and </td>Z from every line    
+sed -E 's/^ *<td[^>]*>//g' | sed -E 's\</td> *\\g' |   
+
+#translate spaces -> newlines
+#translate uppercase -> lowercase
+tr -s ' ' '\n' | tr '[:upper:]' '[:lower:]' | 
+
+#sort all words and remove repeats
+sort -u  

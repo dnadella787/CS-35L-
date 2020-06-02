@@ -1,0 +1,143 @@
+Only in diffutils-3.0-patch: analyze.c
+Only in diffutils-3.0-patch: analyze.o
+Only in diffutils-3.0: AUTHORS
+Only in diffutils-3.0: bootstrap
+Only in diffutils-3.0: bootstrap.conf
+Only in diffutils-3.0: cfg.mk
+Only in diffutils-3.0: ChangeLog-2008
+Only in diffutils-3.0-patch: cmp
+Only in diffutils-3.0-patch: cmp.c
+Only in diffutils-3.0-patch: cmp.o
+Only in diffutils-3.0: configure.ac
+Only in diffutils-3.0-patch: context.c
+Only in diffutils-3.0-patch: context.o
+Only in diffutils-3.0: COPYING
+Only in diffutils-3.0-patch: .deps
+Only in diffutils-3.0-patch: diff
+Only in diffutils-3.0-patch: diff3
+Only in diffutils-3.0-patch: diff3.c
+Only in diffutils-3.0-patch: diff3.o
+Only in diffutils-3.0-patch: diff.c
+Only in diffutils-3.0-patch: diff.h
+Only in diffutils-3.0-patch: diff.o
+Only in diffutils-3.0-patch: dir.c
+Only in diffutils-3.0-patch: dir.o
+Only in diffutils-3.0: dist-check.mk
+Only in diffutils-3.0: doc
+Only in diffutils-3.0-patch: ed.c
+Only in diffutils-3.0-patch: ed.o
+Only in diffutils-3.0: exgettext
+Only in diffutils-3.0: .git
+Only in diffutils-3.0: .gitignore
+Only in diffutils-3.0: .gitmodules
+Only in diffutils-3.0: gl
+Only in diffutils-3.0: gnulib
+Only in diffutils-3.0: gnulib-tests
+Only in diffutils-3.0-patch: ifdef.c
+Only in diffutils-3.0-patch: ifdef.o
+Only in diffutils-3.0-patch: io.c
+Only in diffutils-3.0-patch: io.o
+Only in diffutils-3.0: lib
+Only in diffutils-3.0: m4
+Only in diffutils-3.0-patch: Makefile
+diff -pru diffutils-3.0/Makefile.am diffutils-3.0-patch/Makefile.am
+--- diffutils-3.0/Makefile.am	2020-05-26 01:46:40.609609000 -0700
++++ diffutils-3.0-patch/Makefile.am	2020-05-26 01:43:15.970254000 -0700
+@@ -1,6 +1,6 @@
+-# Main Automakefile for GNU diffutils.
++# Automakefile for GNU diffutils programs.
+ 
+-# Copyright (C) 2001-2002, 2004, 2006, 2009-2010 Free Software Foundation, Inc.
++# Copyright (C) 2001-2002, 2006, 2009-2010 Free Software Foundation, Inc.
+ 
+ # This program is free software: you can redistribute it and/or modify
+ # it under the terms of the GNU General Public License as published by
+@@ -15,29 +15,41 @@
+ # You should have received a copy of the GNU General Public License
+ # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ 
+-ALL_RECURSIVE_TARGETS =
++bin_PROGRAMS = cmp diff diff3 sdiff
+ 
+-EXTRA_DIST = bootstrap exgettext ChangeLog-2008 cfg.mk dist-check.mk
+-SUBDIRS = lib src tests doc man po ms gnulib-tests
++noinst_HEADERS = system.h
+ 
+-ACLOCAL_AMFLAGS = -I m4
++localedir = $(datadir)/locale
++
++AM_CPPFLAGS = -I../lib -I$(top_srcdir)/lib
+ AM_CFLAGS = $(WARN_CFLAGS) $(WERROR_CFLAGS)
+ 
+-# Arrange so that .tarball-version appears only in the distribution
+-# tarball, and never in a checked-out repository.
+-dist-hook: gen-ChangeLog
+-	$(AM_V_GEN)echo $(VERSION) > $(distdir)/.tarball-version
+-
+-gen_start_date = '2009-11-11 15:00'
+-.PHONY: gen-ChangeLog
+-gen-ChangeLog:
+-	$(AM_V_GEN)if test -d .git; then				\
+-	  $(top_srcdir)/build-aux/gitlog-to-changelog			\
+-	    --since=$(gen_start_date) > $(distdir)/cl-t;		\
+-	  rm -f $(distdir)/ChangeLog;					\
+-	  mv $(distdir)/cl-t $(distdir)/ChangeLog;			\
+-	fi
+-
+-ALL_RECURSIVE_TARGETS += distcheck-hook
+-distcheck-hook:
+-	$(MAKE) my-distcheck
++LDADD = \
++  ../lib/libdiffutils.a \
++  $(LIBCSTACK) \
++  $(LIBINTL) \
++  $(LIBICONV) \
++  $(LIBSIGSEGV) \
++  $(LIB_CLOCK_GETTIME)
++
++diff_LDADD = $(LDADD)
++cmp_LDADD = $(LDADD)
++sdiff_LDADD = $(LDADD)
++diff3_LDADD = $(LDADD)
++
++cmp_SOURCES = cmp.c
++diff3_SOURCES = diff3.c
++sdiff_SOURCES = sdiff.c
++diff_SOURCES = \
++  analyze.c context.c diff.c diff.h dir.c ed.c ifdef.c io.c \
++  normal.c side.c util.c
++
++MOSTLYCLEANFILES = paths.h paths.ht
++
++cmp.$(OBJEXT) diff3.$(OBJEXT) diff.$(OBJEXT) sdiff.$(OBJEXT): paths.h
++
++gdiff = `echo diff|sed '$(transform)'`
++BUILT_SOURCES = paths.h
++paths.h: Makefile.am
++	$(AM_V_GEN)(echo '#define DEFAULT_DIFF_PROGRAM "'$(gdiff)'"' && \
++	  echo '#define LOCALEDIR "$(localedir)"') >$@t && mv $@t $@
+Only in diffutils-3.0-patch: Makefile.in
+Only in diffutils-3.0: man
+Only in diffutils-3.0: ms
+Only in diffutils-3.0: NEWS
+Only in diffutils-3.0-patch: normal.c
+Only in diffutils-3.0-patch: normal.o
+Only in diffutils-3.0-patch: paths.h
+Only in diffutils-3.0: po
+Only in diffutils-3.0: .prev-version
+Only in diffutils-3.0: README
+Only in diffutils-3.0: README-hacking
+Only in diffutils-3.0: README-release
+Only in diffutils-3.0-patch: sdiff
+Only in diffutils-3.0-patch: sdiff.c
+Only in diffutils-3.0-patch: sdiff.o
+Only in diffutils-3.0-patch: side.c
+Only in diffutils-3.0-patch: side.o
+Only in diffutils-3.0: src
+Only in diffutils-3.0-patch: system.h
+Only in diffutils-3.0: tests
+Only in diffutils-3.0: THANKS
+Only in diffutils-3.0: TODO
+Only in diffutils-3.0-patch: util.c
+Only in diffutils-3.0-patch: util.o
+Only in diffutils-3.0: .x-sc_space_tab

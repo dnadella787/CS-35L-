@@ -1,0 +1,182 @@
+Dhanush Nadella
+Assignment 8 
+TA: Daniel Meirovitch
+
+HW: 
+
+1. Started a file called hw8.txt
+
+2. 
+Recloned the git library and then made a branch from v3.0 called quote.
+
+commands:
+git clone https://git.savannah.gnu.org/git/diffutils.git diffutilsHW 
+cd diffutilsHW
+git checkout v3.0 -b quote
+
+3. 
+Applied the appropriate patch as desired.
+
+command: 
+patch -p1 < ../quote-3.0-patch.txt 
+
+output:
+patching file src/cmp.c
+patching file src/diff.c
+patching file src/diff3.c
+patching file src/dir.c
+patching file src/sdiff.c
+patching file src/util.c
+
+4.
+Learned how to use emacs function.
+
+5. 
+commands and keystrokes:
+emacs
+C-x 4 a 
+copied the appropriate part from git-log.txt but removed all the
+parts that weren't changed by the patch i.e. all the files that are 
+not the 6 files outputted in 3. I also changed the description
+to meet the scenario.
+    
+    This is in response to the customer wanting to use ` only as a 
+    spacing accent and not a quoting character meaning output should 
+    look 'like this' or "like this", instead of `like this' or 
+    ``like this'' but desires a very minimal patch. 
+    * src/cmp.c, src/diff.c:
+    * src/diff3.c, src/dir.c:
+    * src/sdiff.c, src/util.c:
+    Quote 'like this' or "like this" in commentary.
+    * src/cmp.c (try_help, specify_ignore_initial, usage, main):
+    * src/diff.c (main, try_help, option_help_msgid, specify_value)
+    (compare_files):
+    * src/diff3.c (main, try_help, option_help_msgid, usage)
+    (read_diff):
+    * src/dir.c (compare_names):
+    * src/sdiff.c (try_help, usage, check_child_status, main):
+    * src/util.c (finish_output):
+    Quote 'like this' in output.
+
+C-x C-s
+C-x C-c 
+
+6. 
+First added all the modified files to the staging area and then
+ran git commit to commit all the files. I made the commit by adding 
+-F flag to add the commit message using the ChangeLog file created
+earlier.
+
+commands:
+git status (all red since theyve been changed by the patch)
+git add src/*.c 
+git status (all green now)
+git commit -F ChangeLog 
+
+output: 
+[quote a6e6e35] 2020-05-27  Dhanush Madhav Nadella  <classdna@lnxsrv10.seas.ucla.edu>
+ Committer: Dhanush Madhav Nadella <classdna@lnxsrv10.seas.ucla.edu>
+Your name and email address were configured automatically based
+on your username and hostname. Please check that they are accurate.
+You can suppress this message by setting them explicitly. Run the
+following command and follow the instructions in your editor to edit
+your configuration file:
+
+    git config --global --edit
+
+After doing this, you may fix the identity used for this commit with:
+
+    git commit --amend --reset-author
+
+ 6 files changed, 43 insertions(+), 43 deletions(-)
+
+7. 
+I ran the git format-patch command as instructed by the spec sheet. 
+
+commands:
+git format-patch -1 --stdout > ../formatted-patch.txt 
+
+8.
+Cloned another repository and called it diffutilsHW2. I created a new 
+branch from this called patchery on v3.0. I then used git am to use the
+formatted-patch.txt created in the last question. I then ran the 
+appropriate commands to build it and also had to get the additional 
+patch once more. There were some errors outputted but it was noted on 
+piazza that these were ok. 
+
+commands:
+git clone https://git.savannah.gnu.org/git/diffutils.git diffutilsHW2
+cd diffutilsHW2 
+git checkout v3.0 -b patchery
+git am ../formatted-patch.txt 
+./bootstrap
+cd ..
+wget https://web.cs.ucla.edu/classes/spring20/cs35L/assign/diffutils-gets.diff
+cd diffutilsHW2
+patch -p0 < ../diffutils-gets.diff 
+./configure
+make
+make check 
+
+output:
+/bin/sh: /bin/sh: cannot execute binary file
+make[3]: *** [Makefile:1309: basic.log] Error 126
+make[3]: Leaving directory '/w/home.03/class/classdna/35LAssignments/Assignment8/diffutilsHW2/tests'
+make[2]: *** [Makefile:1291: check-TESTS] Error 2
+make[2]: Leaving directory '/w/home.03/class/classdna/35LAssignments/Assignment8/diffutilsHW2/tests'
+make[1]: *** [Makefile:1406: check-am] Error 2
+make[1]: Leaving directory '/w/home.03/class/classdna/35LAssignments/Assignment8/diffutilsHW2/tests'
+make: *** [Makefile:1016: check-recursive] Error 1
+
+9.
+I ran the make distdir command and had no errors with it. I then 
+viewed the diffutils*/ChangeLog and the first commit message was 
+from me and was the one I wrote above. 
+
+commands:
+make distdir
+cat diffutils-3.0.1-a81d/ChangeLog | less 
+
+10.
+I first ssh'd into lnxsrv10 using the -X flag for X11 forwarding.
+I scrolled until I the last merge before 2015-01-25. My view 
+of the mergepoint had the following information:
+
+Author: Joakim Verona <joakim@verona.se> 2015-01-24 17:11:31
+Committer: Joakim Verona <joakim@verona.se> 2015-01-24 17:11:31
+parent: (long hash value) (Merge Branch 'master' into xwidget)
+parent: (long hash value) ((find-function-regexp): Don't watch `defgroup')
+child: (long hash value) (Merge branch 'master' into xwidget)
+branches: master, remotes/origin/master and many more (266)
+Follows: emacs-24.4
+Precedes: emacs-25.0.90 
+
+    merge master 
+
+The roles the subwindows have:
+
+Top Left: Visual representation of merges, branches, commits, etc 
+and has basic info on what was merged what was comitted etc.
+
+Top Middle: Name and email of person who did the action in top left 
+window.
+
+Top Right: Date of action shown in Top Left. 
+
+Middle Area: Has SHAI ID, data on which row you are currently on, and  
+a search feature.
+
+Bottom Left: Has information on the action thats clicked on from the 
+top left such as the persn who did it, the parent tree, general info 
+on the changes, date, etc. Some also seem to have some diff outputs
+that can be used as patches appended to the bottom.
+
+Bottom Right: Has a navigation pane in which you can look at comments
+and also the patches that were talked about in Bottom Left. Although
+they are all in one window in bottom left, the bottom right window 
+allows you to automatically go to one area in bottom left window. 
+
+commands:
+ssh -X lnxsrv10 
+cd ~eggert/src/gnu/emacs-CS-35L
+gitk 

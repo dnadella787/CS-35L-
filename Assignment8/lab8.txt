@@ -1,0 +1,475 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+Done on lnxsrv10
+
+1. 
+Cloned the repository from savannah.
+
+command:
+git clone https://git.savannah.gnu.org/git/diffutils.git
+
+2. 
+Placed git log into git-log.txt
+
+command:
+cd diffutils 
+git log > ../git-log.txt
+
+3.
+Placed git tag into git-tag.txt 
+
+command:
+git tag > ../git-tags.txt
+
+4. 
+Combed through git-log.txt using regex search to find commit
+that matched the spec. I took the commit hash and created a 
+patch.
+
+commands:
+emacs ../git-log.txt
+C-s maint: quote C-g C-x C-c 
+git format-patch -1 62ca21c --stdout > quote-patch.txt
+
+5.
+Switched to v3.0 using checkout command.
+
+commands:
+git checkout v3.0
+
+6. 
+First tried to apply the patch. There were a few times the 
+appropriate file could not be found but I just skipped past those
+as requested in the spec. A couple of hunks ended up failing 
+throughout and outputted these lines: 
+
+3 out of 14 hunks FAILED -- saving rejects to file src/diff.c.rej
+1 out of 9 hunks FAILED -- saving rejects to file src/diff3.c.rej
+
+Of course there were other lines between these also but these were 
+ones that failed. I'm also sure other hunks also failed but WSL
+wouldnt let me scroll up because my terminal buffer was too small 
+to see them all.
+
+
+commands:
+patch -p1 < quote-patch.txt 
+
+7.
+Used git status to see what happened such as which files were 
+changed.
+
+commands:
+git status
+
+output:
+HEAD detached at v3.0
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   NEWS
+        modified:   README
+        modified:   TODO
+        modified:   doc/diagmeet.note
+        modified:   ms/config.bat
+        modified:   ms/config.site
+        modified:   po/en.po
+        modified:   src/analyze.c
+        modified:   src/cmp.c
+        modified:   src/context.c
+        modified:   src/diff.c
+        modified:   src/diff.h
+        modified:   src/diff3.c
+        modified:   src/dir.c
+        modified:   src/ifdef.c
+        modified:   src/io.c
+        modified:   src/sdiff.c
+        modified:   src/side.c
+        modified:   src/system.h
+        modified:   src/util.c
+        modified:   tests/help-version
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+  
+        NEWS.orig
+        README-hacking.orig
+        README-hacking.rej
+        README.orig
+        README.rej
+        cfg.mk.orig
+        cfg.mk.rej
+        ms/config.site.orig
+        quote-patch.txt
+        src/cmp.c.orig
+        src/context.c.orig
+        src/diff.c.orig
+        src/diff.c.rej
+        src/diff.h.orig
+        src/diff3.c.orig
+        src/diff3.c.rej
+        src/dir.c.orig
+        src/sdiff.c.orig
+        src/system.h.orig
+        src/util.c.orig
+        tests/help-version.orig
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+8.
+Learned how to use emacs functions.
+
+9. 
+Used emacs to revert changes made to files for comments only. All 
+lines of code actually written left as is. 
+
+commands and keystrokes:
+
+emacs NEWS
+C-x v u 
+yes
+C-x C-c 
+
+emacs README
+C-x v u 
+yes 
+C-x C-c
+
+emacs TODO
+C-x v u 
+yes
+C-x C-c 
+
+emacs doc/diagmeet.note 
+C-x v u 
+yes
+C-x C-c 
+
+emacs ms/config.bat 
+C-x v u 
+yes
+C-x C-c 
+
+emacs ms/config.site
+C-x v u 
+yes
+C-x C-c 
+
+emacs po/en.po
+C-x v u 
+yes
+C-x C-c 
+
+emacs src/analyze.c 
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/cmp.c 
+C-x v =
+C-u C-c C-a
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/context.c 
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/diff.c 
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/diff.h
+C-x v u 
+yes 
+C-x C-c 
+
+emacs src/diff3.c 
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/dir.c 
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/ifdef.c 
+C-x v = 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/io.c 
+C-x v = 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/sdiff.c 
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/side.c
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs src/system.h 
+C-x v u 
+yes
+C-x C-c 
+
+emacs src/util.c
+C-x v = 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-u C-c C-a 
+C-x C-c y 
+
+emacs tests/help-version 
+C-x v u 
+yes 
+C-x C-c 
+
+10.
+Manually changed the code in .c files that rejected the patch.
+
+commands and keystrokes: 
+emacs src/*.c.rej 
+C-x o 
+C-x C-f diff.c 
+C-s --paginate 
+Ret
+(changed ` to ')
+M-< C-s --ifdef 
+Ret 
+(changed ` to ')
+C-s LTYPE is 
+Ret 
+(changed ` to ' 4 times in this line)
+C-s FILES are 
+Ret
+(changed ` to ' 3 times in thsi line)
+C-s If a FILE 
+Ret 
+(changes ` to ')
+C-x C-s 
+C-x C-c 
+
+emacs src/*.c.rej 
+C-x C-f diff3.c 
+C-s N_("-i 
+Ret 
+(Changes ` to ' 2 times)
+C-x C-s 
+C-x C-c 
+
+11. 
+Removed all untracked files using git clean command. 
+
+command:
+git clean -f 
+
+output:
+Removing NEWS.orig
+Removing README-hacking.orig
+Removing README-hacking.rej
+Removing README.orig
+Removing README.rej
+Removing cfg.mk.orig
+Removing cfg.mk.rej
+Removing ms/config.site.orig
+Removing quote-patch.txt
+Removing src/#diff.c.rej#
+Removing src/cmp.c.orig
+Removing src/context.c.orig
+Removing src/diff.c.orig
+Removing src/diff.c.rej
+Removing src/diff.h.orig
+Removing src/diff3.c.orig
+Removing src/diff3.c.rej
+Removing src/dir.c.orig
+Removing src/sdiff.c.orig
+Removing src/system.h.orig
+Removing src/util.c.orig
+Removing tests/help-version.orig
+
+12. 
+Ran the commands:
+
+command:
+git status
+
+output:
+HEAD detached at v3.0
+Changes not staged for commit:
+  (use "git add <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+        modified:   src/cmp.c
+        modified:   src/diff.c
+        modified:   src/diff3.c
+        modified:   src/dir.c
+        modified:   src/sdiff.c
+        modified:   src/util.c
+
+no changes added to commit (use "git add" and/or "git commit -a")
+
+command:
+git diff | wc -l 
+git diff > quote-3.0-patch.txt 
+
+output: 326
+
+13. 
+Ran the build commands from README-hacking 
+
+commands:
+./bootstrap
+wget https://web.cs.ucla.edu/classes/spring20/cs35L/assign/diffutils-gets.diff
+patch -p0 < diffutils-gets.diff 
+./configure
+make 
+make check 
+
+test commands:
+./src/diff . -
+
+output:
+./src/diff: cannot compare '-' to a directory
+
+test commands:
+./src/diff --help
+
+output:
+Usage: ./src/diff [OPTION]... FILES
+Compare files line by line.
+
+  -i  --ignore-case  Ignore case differences in file contents.
+  --ignore-file-name-case  Ignore case when comparing file names.
+  --no-ignore-file-name-case  Consider case when comparing file names.
+  -E  --ignore-tab-expansion  Ignore changes due to tab expansion.
+  -b  --ignore-space-change  Ignore changes in the amount of white space.
+  -w  --ignore-all-space  Ignore all white space.
+  -B  --ignore-blank-lines  Ignore changes whose lines are all blank.
+  -I RE  --ignore-matching-lines=RE  Ignore changes whose lines all match RE.
+  --strip-trailing-cr  Strip trailing carriage return on input.
+  -a  --text  Treat all files as text.
+
+  -c  -C NUM  --context[=NUM]  Output NUM (default 3) lines of copied context.
+  -u  -U NUM  --unified[=NUM]  Output NUM (default 3) lines of unified context.
+    --label LABEL  Use LABEL instead of file name.
+    -p  --show-c-function  Show which C function each change is in.
+    -F RE  --show-function-line=RE  Show the most recent line matching RE.
+  -q  --brief  Output only whether files differ.
+  -e  --ed  Output an ed script.
+  --normal  Output a normal diff.
+  -n  --rcs  Output an RCS format diff.
+  -y  --side-by-side  Output in two columns.
+    -W NUM  --width=NUM  Output at most NUM (default 130) print columns.
+    --left-column  Output only the left column of common lines.
+    --suppress-common-lines  Do not output common lines.
+  -D NAME  --ifdef=NAME  Output merged file to show '#ifdef NAME' diffs.
+  --GTYPE-group-format=GFMT  Similar, but format GTYPE input groups with GFMT.
+  --line-format=LFMT  Similar, but format all input lines with LFMT.
+  --LTYPE-line-format=LFMT  Similar, but format LTYPE input lines with LFMT.
+    LTYPE is 'old', 'new', or 'unchanged'.  GTYPE is LTYPE or 'changed'.
+    GFMT may contain:
+      %<  lines from FILE1
+      %>  lines from FILE2
+      %=  lines common to FILE1 and FILE2
+      %[-][WIDTH][.[PREC]]{doxX}LETTER  printf-style spec for LETTER
+        LETTERs are as follows for new group, lower case for old group:
+          F  first line number
+          L  last line number
+          N  number of lines = L-F+1
+          E  F-1
+          M  L+1
+    LFMT may contain:
+      %L  contents of line
+      %l  contents of line, excluding any trailing newline
+      %[-][WIDTH][.[PREC]]{doxX}n  printf-style spec for input line number
+    Either GFMT or LFMT may contain:
+      %%  %
+      %c'C'  the single character C
+      %c'\OOO'  the character with octal code OOO
+
+  -l  --paginate  Pass the output through 'pr' to paginate it.
+  -t  --expand-tabs  Expand tabs to spaces in output.
+  -T  --initial-tab  Make tabs line up by prepending a tab.
+  --tabsize=NUM  Tab stops are every NUM (default 8) print columns.
+  --suppress-blank-empty  Suppress space or tab before empty output lines.
+
+  -r  --recursive  Recursively compare any subdirectories found.
+  -N  --new-file  Treat absent files as empty.
+  --unidirectional-new-file  Treat absent first files as empty.
+  -s  --report-identical-files  Report when two files are the same.
+  -x PAT  --exclude=PAT  Exclude files that match PAT.
+  -X FILE  --exclude-from=FILE  Exclude files that match any pattern in FILE.
+  -S FILE  --starting-file=FILE  Start with FILE when comparing directories.
+  --from-file=FILE1  Compare FILE1 to all operands.  FILE1 can be a directory.
+  --to-file=FILE2  Compare all operands to FILE2.  FILE2 can be a directory.
+
+  --horizon-lines=NUM  Keep NUM lines of the common prefix and suffix.
+  -d  --minimal  Try hard to find a smaller set of changes.
+  --speed-large-files  Assume large files and many scattered small changes.
+
+  -v  --version  Output version info.
+  --help  Output this help.
+
+FILES are 'FILE1 FILE2' or 'DIR1 DIR2' or 'DIR FILE...' or 'FILE... DIR'.
+If --from-file or --to-file is given, there are no restrictions on FILES.
+If a FILE is '-', read standard input.
+Exit status is 0 if inputs are the same, 1 if different, 2 if trouble.
+
+Report bugs to: bug-diffutils@gnu.org
+GNU diffutils home page: <http://www.gnu.org/software/diffutils/>
+General help using GNU software: <http://www.gnu.org/gethelp/>
+
+14. 
+I copied the diffutils into a directory called diffutils-3.0 and then 
+changed the version to v3.0 as desired. I then copied the changed diffutils
+directory from earlier into another directory called diffutils-3.0-patch.
+I then ran the command given in the spec sheet.
+
+commands:
+cd ..
+git clone https://git.savannah.gnu.org/git/diffutils.git diffutils-3.0 
+cd diffutils-3.0 
+git checkout v3.0 
+cd ..
+cp -r diffutils diffutils-3.0-patch 
+cd ..
+./diffutils/src/diff -pru diffutils-3.0 diffutils-3.0-patch > quote-3.0-test.txt
+
+15. 
+Ran the diff command as desired. The files are not the exact same
+but the differences can be considered inocuous as the differences
+are due to usage of ` instead ' in lines of code. 
+
+command:
+diff quote-3.0-test.txt quote-3.0-patch.txt 
+

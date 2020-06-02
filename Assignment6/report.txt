@@ -1,0 +1,268 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+lnxsrv10
+
+Laboratory: Buffered vs Unbuffered I/O
+
+1. Wrote the tr2b.c as described
+2. Wrote tr2u.c as described using system calls.
+3. Wrote the following python script to make a large file:
+
+    #!/usr/bin/python
+
+    import random
+    import string
+
+    def randomString(stringLength=8):
+        letters = string.ascii_lowercase
+        return ' '.join(random.choice(letters) for i in range(stringLength))
+
+    def main():
+        f = open("largeFile.txt", "w")
+        for i in range(1,400000):
+            if (i%3) == 0:
+                f.write('\n')
+            f.write(randomString(random.randint(1,13)))
+
+        f.close()
+
+    if __name__ == "__main__":
+        main()
+
+   command to make sure over 5,000,000 bytes:
+   wc -c < largeFile.txt
+   output:
+   5324834
+
+   (a)
+
+   tr2u coppying files:
+
+    strace -c ./tr2u abc def < largeFile.txt > output2
+
+    % time     seconds  usecs/call     calls    errors syscall
+    ------ ----------- ----------- --------- --------- ----------------
+    56.05   17.148685           3   5324834           write
+    43.95   13.444825           3   5324836           read
+    0.00    0.000000           0         2           open
+    0.00    0.000000           0         2           close
+    0.00    0.000000           0         2           fstat
+    0.00    0.000000           0         7           mmap
+    0.00    0.000000           0         4           mprotect
+    0.00    0.000000           0         1           munmap
+    0.00    0.000000           0         1           brk
+    0.00    0.000000           0         1         1 access
+    0.00    0.000000           0         1           execve
+    0.00    0.000000           0         1           arch_prctl
+    ------ ----------- ----------- --------- --------- ----------------
+    100.00   30.593510              10649692         1 total
+
+   tr2b copying files:
+
+    strace -c ./tr2b abc def < largeFile.txt > output1
+    % time     seconds  usecs/call     calls    errors syscall
+    ------ ----------- ----------- --------- --------- ----------------
+    66.31    0.000368           1       651           write
+    33.69    0.000187           0       653           read
+    0.00    0.000000           0         2           open
+    0.00    0.000000           0         2           close
+    0.00    0.000000           0         4           fstat
+    0.00    0.000000           0         9           mmap
+    0.00    0.000000           0         4           mprotect
+    0.00    0.000000           0         1           munmap
+    0.00    0.000000           0         1           brk
+    0.00    0.000000           0         1         1 access
+    0.00    0.000000           0         1           execve
+    0.00    0.000000           0         1           arch_prctl
+    ------ ----------- ----------- --------- --------- ----------------
+    100.00    0.000555                  1330         1 total
+  
+
+    When copying files, the buffered version was significantly faster
+    and also made far fewer system calls. The unbuffered version
+    made well over 10,000,000 more system calls than the buffered 
+    version.
+
+    (b)
+
+    tr2u copying to terminal:
+
+    strace -c ./tr2u abc def < largeFile.txt
+
+    % time     seconds  usecs/call     calls    errors syscall
+    ------ ----------- ----------- --------- --------- ----------------
+    57.09   20.012569           4   5324834           write
+    42.91   15.044747           3   5324836           read
+    0.00    0.000030           4         7           mmap
+    0.00    0.000022           6         4           mprotect
+    0.00    0.000021          11         2           fstat
+    0.00    0.000012           6         2           open
+    0.00    0.000009           9         1           munmap
+    0.00    0.000006           6         1         1 access
+    0.00    0.000004           2         2           close
+    0.00    0.000003           3         1           execve
+    0.00    0.000003           3         1           arch_prctl
+    0.00    0.000002           2         1           brk
+    ------ ----------- ----------- --------- --------- ----------------
+    100.00   35.057428              10649692         1 total
+
+    tr2b copying to terminal:
+
+    strace -c ./tr2b abc def < largeFile.txt
+
+    % time     seconds  usecs/call     calls    errors syscall
+    ------ ----------- ----------- --------- --------- ----------------
+    99.49    0.479031           4    133334           write
+    0.51    0.002463           4       653           read
+    0.00    0.000000           0         2           open
+    0.00    0.000000           0         2           close
+    0.00    0.000000           0         4           fstat
+    0.00    0.000000           0         9           mmap
+    0.00    0.000000           0         4           mprotect
+    0.00    0.000000           0         1           munmap
+    0.00    0.000000           0         1           brk
+    0.00    0.000000           0         1         1 access
+    0.00    0.000000           0         1           execve
+    0.00    0.000000           0         1           arch_prctl
+    ------ ----------- ----------- --------- --------- ----------------
+    100.00    0.481494                134013         1 total
+
+    The unbuffered version yet again made more than 10,000,000
+    more system calls than the buffered version but it is important
+    to note that there were the same number of system calls when 
+    both copying to terminal and to a file while it increased 
+    for the buffered version when going from copying to a file to 
+    copying to the terminal, still not enough as the unbuffered 
+    version.
+
+4. copying to a file
+    
+   buffered version:
+
+   time ./tr2b abc def < largeFile.txt > output1
+
+   real    0m0.312s
+   user    0m0.187s
+   sys     0m0.008s
+
+
+   unbuffered version:
+
+   time ./tr2u abc def < largeFile.txt > output2
+
+   real    0m15.327s
+   user    0m3.325s
+   sys     0m11.131s
+
+
+   copying to terminal 
+
+   buffered version:
+
+   real    0m0.612s
+   user    0m0.243s
+   sys     0m0.239s
+
+
+   unbuffered version:
+
+   time ./tr2u abc def < largeFile.txt
+
+   real    0m14.400s
+   user    0m3.563s
+   sys     0m10.273s
+
+   Again, the buffered version was faster.
+
+HW: Encrypted Sort Revisited
+
+1. I used a python script similar to the one in the lab portion
+which the numbers changed to generate the files.
+
+time ./sfrob < emptyFile.txt
+
+real    0m0.002s
+user    0m0.001s
+sys     0m0.000s
+
+time ./sfrobu < emptyFile.txt
+
+real    0m0.002s
+user    0m0.000s
+sys     0m0.001s
+
+time ./sfrob < hundredFile.txt
+
+real    0m0.015s
+user    0m0.000s
+sys     0m0.001s
+
+time ./sfrobu < hundredFile.txt
+
+real    0m0.005s
+user    0m0.001s
+sys     0m0.003s
+
+time ./sfrob < tenThousandFile.txt 
+
+real    0m0.032s
+user    0m0.011s
+sys     0m0.019s
+
+time ./sfrobu < tenThousandFile.txt 
+
+real    0m0.230s
+user    0m0.057s
+sys     0m0.163s
+
+time ./sfrob < millionFile.txt
+
+real    0m3.043s
+user    0m1.132s
+sys     0m1.556s
+
+time ./sfrobu < millionFile.txt
+
+real    0m22.679s
+user    0m5.212s
+sys     0m17.183s
+
+sfrob:
+CPUTimeCost = (0.0025947) * (1.0000064)^(numberOfLines)
+r^2 = 0.84715893
+r = 0.92041237
+
+sfrobu:
+CPUTimeCost = (0.0075995)*(1.00000077)^(numberOfLines)
+r^2 = 0.7630424
+r = 0.87352296
+
+The CPU time cost grows exponentially as a function of the 
+number of lines. I used a super simple R script to calc this.
+The r and r^2 values are decently high meaning that there may
+exist some reasonable correlation between the two variables
+such that it can be represented exponentially. 
+
+It is also pretty evident that sfrob is faster than sfrobu by 
+looking at the functions and also the times themselves. Sfrob
+has the advantage of using library functions to read input into
+the buffer so it makes less system calls in total making it 
+far more efficient than the version I made, which makes far 
+more system calls because I am using a read call for each
+character until the EOF is reached after the initial read
+sys call to make sure I can handle the growing file case
+appropriately. 
+
+If we had to use system calls instead of malloc and realloc, 
+then we would use mremap to reallocate memory in the 
+following way:
+
+mremap(void *oldAddress, size_t oldSize, size_t newSize, 
+       void *newAddress);
+
+Instead of malloc we would use mmap in the following way:
+
+mmap(void *address, size_t size);
+
+
+

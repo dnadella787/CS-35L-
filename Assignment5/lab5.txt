@@ -1,0 +1,187 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+Done on lnxsrv10
+
+Assignment 5: Laboratory Debugging a C Program
+
+
+1. I first made a directory called A5Install under my home directory. I then used wget 
+   to get the coreutils with the bug and then unpacked the file using tar with the gzip
+   flag included.
+
+   commands:
+   mkdir A5Install
+   cd A5Install
+
+   wget https://web.cs.ucla.edu/classes/spring20/cs35L/assign/coreutils-with-bug.tar.gz
+   tar -xzf coreutils-with-bug.tar.gz
+
+2. I then ran the configure command with the appropriate prefix which I found
+   through the pwd command. I then ran make but recieved an error (below) which 
+   I believe ocurred because the futimens function was first included via the
+   "#include <sys/stat.h>" in utimecmp.h but was then the same futimens function
+   was included again via the '#include "utimecmp.h"' in utimecmp.c this time.
+   This caused a compilation error when make was ran.
+
+   commands:
+   cd coreutils-with-bug
+   pwd
+   ./configure --prefix=/u/eng/class/classdna/A5Install
+   make
+
+   error:
+   In file included from utimecmp.c:41:
+   utimens.h:2:5: error: conflicting types for 'futimens'
+       2 | int futimens (int, char const *, struct timespec const [2]);
+       |     ^~~~~~~~
+   In file included from utimecmp.h:25,
+                   from utimecmp.c:25:
+   /usr/include/sys/stat.h:373:12: note: previous declaration of 'futimens' was here
+   373 | extern int futimens (int __fd, const struct timespec __times[2]) __THROW;
+       |            ^~~~~~~~
+
+3. To fix this issue I obtained the renaming patch via wget and then used the patch
+   command to fix the files. There were 5 files that were impacted by the patch. I 
+   then proceeded to run make again and it worked fine because it resolved the 
+   definition of the futimens function twice. Once make ran fine, I ran make
+   install.
+
+   commands:
+   wget https://web.cs.ucla.edu/classes/spring20/cs35L/assign/coreutils.diff
+   patch -p0 < coreutils.diff
+   make 
+   make install
+
+   output:
+   patching file lib/utimens.c
+   patching file lib/utimens.h
+   patching file src/copy.c
+   patching file src/tee.c
+   patching file src/touch.c
+
+4. To reproduce the problem I created a tmp directory and added files to it in a 
+   fashion similar to the spec sheet.
+
+   commands:
+   tmp=$(mktemp -d)
+   cd $tmp
+   touch -d '1918-11-11 11:00 GMT' wwi-armistice-cs35L
+   touch now
+   sleep 1
+   touch now1
+   TZ=UTC0 ~/A5Install/bin/ls -lt --full-time wwi-armistice-cs35L now now1
+   cd
+
+   output:
+   -rw-r--r-- 1 classdna class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice-cs35L
+   -rw-r--r-- 1 classdna class 0 2020-05-03 11:07:01.957791975 +0000 now1
+   -rw-r--r-- 1 classdna class 0 2020-05-03 11:06:53.347464707 +0000 now
+
+5. I first ran gdb on the proper ls executable from within the A5Install directory. 
+   In order to figure out my next course of action I read through the help all page 
+   and landed on the brief explanation for info functions which is what I ended up 
+   using. I then scrolled down to ls.c in order to find the functions where the error
+   was ocurring. There were three particular functions of interest, compare_atime, 
+   compare_ctime, and compare_mtime. I then read through the man page for ls and
+   since by default mtime is used I decided to take a look at the function 
+   compare_mtime and set a breakpoint on it. The function was presumably called
+   several times by qsort or some other sort function, and by stepping through, 
+   everytime I would go into another functin called cmp_mtime and another function
+   called timespec_cmp. I believe it is here where the error was occurring because 
+   the function places the difference between the nanoseconds of the two files into 
+   an int and then returns that value, called diff. If the difference in the times
+   in times is too large then it would cause overflow and misrepresentation of the 
+   value. 
+
+   commands:
+   gdp ~/A5Install/bin/ls
+   help all 
+   q
+   info functions
+   break compare_mtime
+   run -lt --full-time
+   step
+   step
+   step
+   print diff (outputs $1 = -1092635470)
+   continue
+   step
+   step
+   step
+   print diff (outputs $2 = 1092635478)
+   continue 
+   step 
+   step
+   step 
+   print diff (outputs $3 = 8)
+   continue 
+   delete break 1
+   q 
+
+
+6. To fix the problem I used comparisons. ls ran properly on the tmp directory
+   afterewards.
+
+   original timespec_cmp:
+   static inline int
+   timespec_cmp (struct timespec a, struct timespec b)
+   {
+       int diff = a.tv_sec - b.tv_sec;
+       return diff ? diff : a.tv_nsec - b.tv_nsec;
+   }
+
+   my timespec_cmp:
+   static inline int
+   timespec_cmp (struct timespec a, struct timespec b)
+   {
+       if (a.tv_sec < b.tv_sec) return -1
+       else if (a.tv_sec > b.tv_sec) return 1
+       else{
+           if (a.tv_nsec < b.tv_nsec) return -1
+           else if (a.tv_nsec > b.tv_nsec) return 1
+           return 0
+       }
+   }
+
+
+   commands:
+   cp lib/timespec.h timespec.h
+   diff -u lib/timespec.h timespec.h > lab5.diff
+   patch -p0 < lab5.diff
+   make
+   make install
+   cd $tmp
+   TZ=UTC0 ~/A5Install/bin/ls -lt --full-time wwi-armistice-cs35L now now1
+   cd 
+   rm -fr $tmp
+
+   output:
+   -rw-r--r-- 1 classdna class 0 2020-05-03 14:20:10.354579137 +0000 now1
+   -rw-r--r-- 1 classdna class 0 2020-05-03 14:20:00.560206154 +0000 now
+   -rw-r--r-- 1 classdna class 0 1918-11-11 11:00:00.000000000 +0000 wwi-armistice-cs35L
+   (as desired, works properly now)
+
+7. I first made a sample directory similar to the example from the spec sheet 
+   and in #4. I was not able to reproduce the error, but curiously enough, a 
+   different, unexpected behavior was found. The mtime for 
+   wwi-armistice-cs35L was 2054-12-17 instead of 1918-11-11 as inputted or 
+   found in part #4. The SEASnet servers must also suffer from some kind of 
+   overflow issue when storing the time for values that are very far back. This
+   time the error did not occur when sorting them (as far as I can tell from this
+   one test case) but rather occurred in the process of storing the mtime itself.
+
+
+
+   commands:
+   mkdir tmp
+   cd tmp 
+   touch -d '1918-11-11 11:00 GMT' wwi-armistice-cs35L
+   touch now
+   sleep 1
+   touch now1
+   ls -lt --full-time wwi-armistice-cs35L now1 now 
+
+   output:
+   -rw-r--r-- 1 classdna class 0 2054-12-17 09:28:16.000000000 -0800 wwi-armistice-cs35L
+   -rw-r--r-- 1 classdna class 0 2020-05-03 07:34:53.186717000 -0700 now1
+   -rw-r--r-- 1 classdna class 0 2020-05-03 07:34:47.587305000 -0700 now

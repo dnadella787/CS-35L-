@@ -1,0 +1,152 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+
+Assignment 3: Shell Scripting
+
+Laboratory: Spell-checking Hawaiian
+
+1. Change to proper locale variable in .profile
+
+   command:
+   export LC_ALL='C'
+
+2. Sort /usr/share/dict/words into words 
+
+   command:
+   sort /usr/share/dict/words > words
+
+3. Downloaded by wget
+
+   command:
+   wget web.cs.ucla.edu/classes/spring20/cs35L/assign/assign3.html
+
+4. Start running ENGLISHCHECKER on assign3.html
+
+   command and what it does:
+   tr -c 'A-Za-z' '[\n*]' < assign3.html
+
+   All characters not ASCII letters turn into newlines
+
+5. command and what it does:
+   tr -cs 'A-Za-z' '[\n*]' < assign3.html
+
+   Removes repeat newlines from above, each word is on one line
+
+6. command and what it does:
+   tr -cs 'A-Za-z' '[\n*]' < assign3.html | sort
+   
+   Sort output from #5 bitewise. (bc of LC_ALL='C')
+
+7. command and what it does:
+   tr -cs 'A-Za-z' '[\n*]' < assign3.html | sort -u
+
+   Sorts output from #5 bitewise and leaves only unique words.
+
+8. command and what it does:
+   tr -cs 'A-Za-z' '[\n*]' < assign3.html | sort -u | comm - words
+
+   Finds all words uniquely in assign3.html, words, and ones in both.
+
+9. command and what it does:
+   tr -cs 'A-Za-z' '[\n*]' < assign3.html | sort -u | comm -23 - words
+
+   Find all words uniquely in assign3.html.
+
+10. Use emacs to make buildwords file
+
+11. Provide proper path to the bash interpreter
+    #!/usr/bin/bash
+
+12. Remove all instances of ?, <u>, and </u>
+
+    sed 's/?//g' | sed 's/<u>//g' | sed 's\</u>\\g' |
+
+13. Translate grave accent -> apostrophe
+    translate dashes -> spaces
+
+    tr "\`" "\'" | tr '-' ' '|  
+
+14. Find all lines of the form A<tdX>W</td>Z 
+
+    grep -E " *<td[^>]*>[pkmnwlhaeiouPKMNWLHAEIOU\' ]+<\/td> *" |  
+
+15. Remove all of the A<tdX> and </td>Z from every line
+
+    sed -E 's/^ *<td[^>]*>//g' | sed -E 's\</td> *\\g' |
+
+16. Translate spaces -> newlines
+    translate uppercase -> lowercase
+
+    tr -s ' ' '\n' | tr '[:upper:]' '[:lower:]' | 
+
+17. Sort the results and keep only unique words
+
+    sort -u
+
+18. Place the output of the script into hwords
+
+    command:
+    cat hwnwdshw.htm | ./buildwords.sh > hwords
+
+19. Create HAWAIIANCHECKER shell command
+
+    command and what it does:
+    tr '[:upper:]' '[:lower:]' < assign3.html |
+       tr -cs "a-z\'" "\n" | sort -u | comm -23 - hwords
+
+    a) Translate uppercase -> lowercase in assign3.html
+    b) Translate non ASCII letter characters -> newlines
+    c) sort for unique words
+    d) take only words in assign3.html
+
+20. Check on hwords too to see if the command works
+
+    command:
+    tr '[:upper:]' '[:lower:]' < hwords |
+       tr -cs "a-z\'" "\n" | sort -u |
+       comm -23 - hwords | wc -l
+
+    output: 0
+
+
+21. HAWAIIANCHECKER mispelled words: 575
+    ENGLISHCHECKER mispelled words: 52
+
+    commands:
+    tr '[:upper:]' '[:lower:]' < assign3.html | tr -cs "a-z\'" "\n" |
+       sort -u | comm -23 - hwords | wc -l
+
+    tr -cs 'A-Za-z' '[\n*]' < assign3.html | tr '[:upper:]' '[:lower:]'
+       sort -u | comm -23 - words | wc -l
+
+    **note** input into ENGLISHCHECKER was made lowercase for consistency
+
+22. # of words ENGLISHCHECKER found mispelled that HAWAIIANCHECKER did not: 8
+    Two examples: Kahiki, Lau
+
+    commands and explanation:
+    tr '[:upper:]' '[:lower:]' < assign3.html |
+       tr -cs "a-z\'" "\n" | sort -u |
+       comm -23 - hwords > H-output
+
+    tr -cs 'A-Za-z' '[\n*]' < assign3.html | tr '[:upper:]' '[:lower:]'
+       sort -u | comm -23 - words > E-output
+
+    comm -23 E-output H-output | wc -l
+
+    a) First place HAWAIIANCHECKER output into H-output
+    b) Place ENGLISHCHECKER output into E-output
+    c) Find all words uniquely in E-output
+
+23. # of words HAWAIIANCHECKER found mispelled that ENGLISHCHECKER did not: 531
+    Two examples: you, your
+
+    commands and explanation:
+    comm -23 H-output E-output | wc -l
+
+    Using same H-output and E-output, find all words uniquely in H-output.
+
+24. Errors - buildwords will find certain english words that still
+    fit the profile of Hawaiian word from the spec sheet and add
+    them to hwords. (ex. who) This is because some of the english words
+    only have letters from the Hawaiian alphabet.

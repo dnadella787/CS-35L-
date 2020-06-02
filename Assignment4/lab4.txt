@@ -1,0 +1,155 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+lnxsrv10
+
+Laboratory: Installing a small change to a big package
+
+1. Used wget to obtain the tarball. I then extracted and filtered the tarball
+   through xz and archived the files. I then had to obtain the gpg keyring 
+   and the signature also using wget so that I could verify them. 
+   (I made a separate directory called A4Install that I put all of these 
+   inside of)
+
+   commands:
+   mkdir A4Install
+   cd A4Install
+   wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz
+   tar -xJvf coreutils-8.29.tar.xz
+   wget ftp://ftp.gnu.org/gnu/coreutils/coreutils-8.29.tar.xz.sig
+   wget https://ftp.gnu.org/gnu/gnu-keyring.gpg
+   gpg --verify --keyring ./gnu-keyring.gpg coreutils-8.29.tar.xz.sig
+
+   output:
+   gpg: Signature made Wed 27 Dec 2017 10:29:05 AM PST using RSA key ID 306037D9
+   gpg: Good signature from "Pádraig Brady <P@draigBrady.com>"
+   gpg:                 aka "Pádraig Brady <pbrady@redhat.com>"
+   gpg:                 aka "Pádraig Brady <pixelbeat@gnu.org>"
+   gpg: WARNING: This key is not certified with a trusted signature!
+   gpg:          There is no indication that the signature belongs to the owner.
+   Primary key fingerprint: 6C37 DC12 121A 5006 BC1D  B804 DF6F D971 3060 37D9
+
+   This occurred because the key used to sign and verify was a public key 
+   so it cannot be verified as being trusted and as belonging to an owner.
+
+2. I changed into the coreutils-8.29 directory and ran pwd to find out 
+   what I was currently to later change the prefix when running ./configure.
+   I then added the appropriate prefix to the ./configure command because 
+   I cannot make changes in /usr/local. Then ran the make and make install 
+   commands.
+
+   commands:
+   cd coreutils-8.29
+   pwd (outputs /u/eng/class/classdna/A4Install/coreutils-8.29)
+   ./configure --prefix=/u/eng/class/classdna/A4Install
+   make
+   make install 
+
+3. I first created two test directories: the first is similar the one in 
+   the spec sheet with foo and bar and a second one similar to the directory 
+   in the email from Karl Berry. I also used a separate directory which 
+   was my own called 35LAssignments and had the files 
+   Assignment1, Assignment2, Assignment3, and Assignment 4 in it.
+
+   commands to make directories: (both start in home directory)
+   directory 1:
+   mkdir test
+   cd test 
+   touch foo 
+   touch bar 
+   
+   directory 2: 
+   mkdir test2
+
+   commands to test directories:
+   in test:
+   /usr/bin/ls -aA
+   output:
+   .  ..  bar  foo
+
+   in test2: 
+   /usr/bin/ls -aA
+   output:
+   .  ..
+
+   in 35LAssignments:
+   /usr/bin/ls -aA
+   output:
+   .  ..  Assignment1  Assignment2  Assignment3  Assignment4
+
+   As the bug report log recounts, the . and .. are included even though
+   the -A is supposed to override the -a and therefore not include the 
+   current or parent directory aliases (. , ..) This happens for all 
+   three of them and indicates that the bug does indeed occur.
+
+4. I first copied all of the contents of the patch into a file called 
+   ls_patch and then applied the patch while still in the coreutils-8.29 
+   directory.
+
+   commands:
+   touch ls_patch
+   emacs ls_patch
+   patch -p1 < ls_patch
+
+   errors:
+   patching file NEWS
+   Hunk #1 FAILED at 4.
+   1 out of 1 hunk FAILED -- saving rejects to file NEWS.rej
+   patching file src/ls.c
+   Hunk #1 succeeded at 1900 (offset -3 lines).
+   patching file tests/local.mk
+   patching file tests/ls/a-option.sh
+
+5. I ran the command make to compile the changes made with the patch 
+   but recieved the following error:
+   
+   WARNING: 'automake-1.15' is missing on your system.
+         You should only need it if you modified 'Makefile.am' or
+         'configure.ac' or m4 files included by 'configure.ac'.
+         The 'automake' program is part of the GNU Automake package:
+         <http://www.gnu.org/software/automake>
+         It also requires GNU Autoconf, GNU m4 and Perl in order to run:
+         <http://www.gnu.org/software/autoconf>
+         <http://www.gnu.org/software/m4/>
+         <http://www.perl.org/>
+   make: *** [Makefile:5997: Makefile.in] Error 127
+
+   I then ran the command autoreconf -f -i to fix this error and then ran 
+   the make command again which worked fine the second time around.
+
+   commands:
+   make
+   autoreconf -f -i 
+   make
+
+6. I ran the tests this time on the same 3 directorires I used in number 3.
+   I also made sure to check that if I used /usr/bin/ls I would get the 
+   same output and I did as expected in all the directories.
+
+   commands to see if patch worked:
+   in test:
+   command:
+   ../A4Testing/bin/ls -aA
+   output:
+   bar  foo
+
+   in test2:
+   command:
+   ../A4Testing/bin/ls -aA 
+   output: (nothing)
+
+   in 35LAssignments:
+   command:
+   ../A4Testing/bin/ls -aA
+   output:
+   Assignment1  Assignment2  Assignment3  Assignment4
+
+   
+   all commands:
+   cd test
+   ../A4Testing/bin/ls -aA
+   cd ../test2
+   ../A4Testing/bin/ls -aA
+   cd ../35LAssignments
+   ../A4Testing/bin/ls -aA
+
+

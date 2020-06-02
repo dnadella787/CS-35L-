@@ -1,0 +1,44 @@
+--- exer1.html	2020-04-01 13:52:48.464143000 -0700
++++ exer3.html	2020-04-03 23:58:54.873365000 -0700
+@@ -1,7 +1,7 @@
+ <!DOCTYPE html>
+ <html lang='en'>
+ <head>
+-<title>Assignment 1. Getting to know your system</title>
++<title>Assignment 42. Getting to know your system</title>
+ <meta charset='UTF-8'>
+ <link rel='author' href='mailto:eggert@cs.ucla.edu'>
+ <link rel='license' href='copyright.html'>
+@@ -9,14 +9,13 @@
+ 
+ <body>
+ 
+-<h1>Assignment 1. Getting to know your system</h1>
++<h1>Assignment 42. Getting to know your system</h1>
+ 
+ <p><small>[<a href='../index.html'>35L home</a> &gt; <a href='../assign.html'>assignments</a>]</small></p>
+ 
+ <section>
+ <h2>Laboratory: Linux and Emacs scavenger hunt</h2>
+ 
+-<!-- diff，在UNIX系統上的一個工具程式，它可以比較兩個檔案之間的不同。通常它被用來比較同一個檔案，在不同版本間的差異。它可以產生一個擴展名為.diff或.patch的檔案，這個檔案可以被另一個工具程式patch來使用。-->
+ 
+ <p>Instructions: Do this assignment on the SEASnet GNU/Linux servers
+ <samp>lnxsrv06</samp>, <samp>lnxsrv07</samp>,
+@@ -123,6 +122,7 @@
+ and the directory listing of the Emacs <samp>dired</samp> command?
+ List any shell or Emacs commands you used to answer this question.</li>
+ </ol>
++
+ </section>
+ 
+ <section>
+@@ -218,7 +218,7 @@
+ <li>Use Emacs to edit the file <samp>exer3.html</samp>.</li>
+ 
+ <li>Change the first two instances of "Assignment 1" to "Assignment 42".</li>
+-<li>Change the first instance of "UTF-8" to "US-ASCII".</li>
++<li>Change the first instance of "US-ASCII" to "US-ASCII".</li>
+ <li>Ooops! The file is not ASCII so you need to fix that. Remove every
+   line containing a non-ASCII character. You can find the next
+   non-ASCII character by searching for the regular

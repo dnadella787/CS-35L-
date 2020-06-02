@@ -1,0 +1,73 @@
+Dhanush Nadella
+UID: 205150583
+TA: Daniel Meirovitch
+Section 2
+
+Assignment2: SSH setup and use in applications
+
+Laboratory Log:
+
+
+SSH-agent Portion:
+
+I first logged into lnxsrv09 and had to make a directory called ".ssh." In this way lnxsrv09 is treated as the client while lnxsrv07 is treated as the server. I then ran ssh-keygen to
+actually create my own ID saved as key and also a public key saved as key.pub.
+
+**It is important to note the permissions on each of these files. key has permissions -rw------- indicating that only the owner has read and write permissions and everybody else has no
+other permissions. key.pub has permissions -rw-r--r-- indicating that the owner has read and write priveledges but this time all other user also have read priveledges and nothing more.**
+
+I then created a file called authorized_keys in the same .ssh directory. I then had to change the permissions on the file using chmod and proceeded to append the public key to
+authorized_keys. The file authorized_keys holds the proper keys to log into another linux server.
+
+To automate the process without having to enter the passphrase when logging into another server, we simply add the private key to ssh-agent using ssh-add. We then run the ssh command
+using the specific key to SSH into the specific linux server.
+
+I also included a second command that I had used to go from lnxsrv10 to lnxsrv07 to lnxsrv09 using the "dirty method" from the article on the spec sheet.
+
+commands:
+
+mkdir .ssh
+ssh-keygen
+touch authorized_keys
+chmod g-r,o-r authorized_keys
+cat key.pub >> authorized_keys
+eval `ssh-agent`
+ssh-add key
+ssh -i key classdna@lnxsrv07.seas.ucla.edu
+
+ssh -A -t -i key classdna@lnxsrv07.seas.ucla.edu ssh -A -i key classdna@lnxsrv09.seas.ucla.edu
+
+
+
+Port Forwarding Portion:
+
+I downloaded both Xming and Xming fonts from sourceforge and then configured my putty by simply checking off the X11 forwarding option. I then made sure it worked by running xeyes which
+proceeded to create a small window with eyes following wherever my cursor was currently at on the screen. 
+
+commands:
+xeyes
+
+
+
+Multihop Portion:
+
+(Started in lnxsrv09 hopped to lnxsrv07 and then to lnxsrv10)
+I first went into my .ssh directory and created a file called config in which I added the following lines.
+
+Host lnxsrv07
+     HostName lnxsrv07.seas.ucla.edu
+
+Host lnxsrv10
+     ProxyCommand ssh -q lnxsrv07 nc lnxsrv10.seas.ucla.edu 22
+
+I then still had to add the private key to ssh-agent because otherwise when trying to access lnxsrv10 I would be prompted for a password for my seas account. In addition, if I wanted to
+just access lnxsrv07 from lnxsrv09 I was able to just use the command "ssh lnxsrv07." The key in this portion that I added to ssh-agent is the same as the one added in the first part.
+
+commands:
+cd .ssh
+touch config
+emacs config (typed in lines above)
+eval `ssh-agent`
+ssh-add key
+ssh lnxsrv10
+

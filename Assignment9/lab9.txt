@@ -1,0 +1,214 @@
+Dhanush Nadella
+TA: Daniel Meirovitch 
+Done on lnxsrv10 
+
+Lab: Git Spelunking 
+
+1. 
+
+The working files take up 165956 bytes (~165 MB) of disk space. 
+The git repository takes up 424356 bytes (~424 MB) of disk space.
+The most disk space is taken up by files in .git/objects but within 
+the directory the .git/objects/pack takes up the most disk space at 
+415112 bytes (~415 MB). The .git/objects directory takes up so much 
+space because git holds all information pertinent to past commits, 
+blobs, and trees. These basically amount to snapshots of files and 
+directories at commit times meaning that if a repository has a large
+number of commits, as one would expect of Professor Eggert's emacs 
+repository, then the .git/objects folder will be large. The 
+.git/objects/pack folder specifically holds the actual data while the 
+.git/objects/info folder seems to hold data useful for git internals.
+
+commands:
+du 
+all=$((590312))
+du .git 
+git=$((424356)
+ans=$(($all - $git))
+echo $ans 
+
+(the values were taken via inspection of the output of commands)
+
+2. 
+
+There are 177 remote branches and 176 local branches.
+
+commands:
+git branch --remote | wc -l 
+git branch | wc -l 
+
+outputs: 
+177 
+176 
+
+3. 
+
+There are two remote repositories called origin and savannah.
+Origin is located at /u/cs/fac/eggert/src/gnu/emacs. Savannah 
+is located at https://git.savannah.gnu.org/git/emacs.git. 
+
+commands:
+git remote -v 
+
+output:
+origin  /u/cs/fac/eggert/src/gnu/emacs (fetch)
+origin  /u/cs/fac/eggert/src/gnu/emacs (push)
+savannah        https://git.savannah.gnu.org/git/emacs.git (fetch)
+savannah        https://git.savannah.gnu.org/git/emacs.git (push)
+
+4. 
+
+I read through the provided URL in the hints and used the appropriate 
+field (-comitterdate) to find the most recent commits to branches. I 
+did not know if the --sort flag sorted in ascending or descending 
+order so I added the committerdate in the --format to show appropriate
+dates. This lead me to using -committerdate instead of committerdate. 
+I also learned that refs/heads is where the local commits are stored
+under more human readable names rather than hashes. Instead these 
+are all references to the hash values of the actual commits. 
+
+commands:
+git for-each-ref --count=10 --sort=-committerdate  --format='%(refname:short) %(committerdate)' refs/heads
+git for-each-ref --count=10 --sort=-committerdate  --format='%(refname:short)' refs/heads
+
+output for second one: (as wanted by the spec)
+master
+scratch/joaot/make-completion-at-point-function
+feature/windows-with-utils
+scratch/completion-api
+scratch/a-modest-completion-redesign-proposal
+scratch/fido-mode
+feature/gnus-select2
+feature/extend_face_id
+scratch/jit-lock-antiblink-cleaned-up
+emacs-26
+
+5. 
+
+There are 141268 commits in the master branch. I used the git 
+rev-list command with the count flag to get a count of how 
+many commits. I then passed in master to the command so that it
+checked the master branch. 
+
+
+commands:
+git rev-list --count master 
+
+output: 
+141268
+
+6. 
+
+97.03% of commits in any branch are also in the master branch. 
+Thihs was calculated by dividing the number of commits in 
+master by the number of commits in all branches. To find the 
+latter the --all flag was used. 
+
+commands:
+git rev-list --count --all 
+
+output:
+145595
+
+7. 
+
+The -s flag only provides the number of commits and not the 
+commit description. The -n flag sorts the output in terms of
+the number of commits rather than alphabetic order. The 
+--after flag only counts commits after the date specified. 
+Since the spec asks only for commits in 2013 or after, I used
+the date 01 Jan 2013.
+
+commands:
+git shortlog -sn --after="01 Jan 2013" | head -n 10 
+
+output:
+  3922  Eli Zaretskii
+  3794  Glenn Morris
+  3784  Paul Eggert
+  1887  Stefan Monnier
+  1833  Lars Ingebrigtsen
+  1671  Michael Albinus
+   671  Dmitry Gutov
+   604  Noam Postavsky
+   568  Juri Linkov
+   506  Alan Mackenzie
+
+8.   
+Once gitk was opened I manually entered the hash values
+into the search bar to find where each point was. I then
+tracked them throughout the repo. 
+
+The mergepoints are:
+abcb2e62dae6aa26308f7ac9efc89247f89cbe65
+98ac36efe4ce4bd3a0bca76fc73ce6c7abaa4371
+0c06b93c1e467debd401eb0b3be4652fde14fa95
+
+commands:
+ssh -X lnxsrv10 
+cd ~eggert/src/gnu/emacs-CS-35L
+gitk 
+  
+
+
+  |
+  |
+ 98ac36                <--- mergepoint here for 98ac36  
+  |  \
+  |   \
+  |    \
+  |     \
+  |      \
+  |       \
+  |        \
+ abcb2e     \      |   <--- mergepoint here for abcb2e 
+  |   \      \     |
+  |    \      \    |
+  |     \      \   |
+  |      \      \  |
+  |       \      \ |
+  |        \      \|
+  |         \      |
+  |          \     |
+  |           \    |                  ^
+  |            \   |                  |   direction of graph goes from down up
+  |             \  |                  |
+  |              \ |
+  |               \|  
+  |               49cd56 
+  |                |
+  |                |
+  |          |    /
+  |          |   /
+  |          |  /
+  |          | /
+  |     |    |/
+  |     |   00e4e3 
+  |     |   /
+  |     |  /
+  |     | /
+  |     |/
+  |   820739 
+  |     |
+0c06b9  |              <--- mergepoint here for 0c06b9..
+  |  \  |    |
+  |   \ |    |
+  |    \|    |  
+  |     |   /
+  |     |  /
+  |      \/
+  |    5490cc 
+  |      |
+  |      |
+  |    625cee
+  |      |
+  |      |
+977cd6   |
+  |      |
+  |      |
+  |      |
+   \    /
+    \  /
+     \/
+    4ea37c
+

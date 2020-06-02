@@ -1,0 +1,210 @@
+Dhanush Nadella
+UID: 205150583
+Section 2
+TA: Daniel Meirovitch
+Assignment done on lnxsrv10
+
+Laboratory: Linux and Emacs Scavenger Hunt
+
+1.
+
+man -k specific_word
+
+commands:
+man man
+
+First I used man man and scrolled through to find the proper expression (-k).
+
+2.
+
+mv located in /usr/local/cs/bin/mv
+sh located in /usr/bin/sh
+
+commands:
+which mv
+which sh
+
+Simply used which command taught in lecture.
+
+3.
+
+ar - create, modify, and extract from archives
+tr - translate or delete charcter
+pr - convert text files for printing
+
+commands:
+man find
+find /usr/bin -executable -name "?r"
+
+Read through man page for find to obtain necessary expressions (-executable, -name) and used the necessary wildcard expression taught in lecture (?).
+
+4.
+
+/usr/bin/emacs-24.3
+
+commands:
+man ls
+ls -l /usr/bin/emacs
+ls -l /etc/alternatives/emacs
+ls -l /usr/bin/emacs-24.3
+
+Called ls -l on each file path until ls -l showed no more symbolic links pertinent to the file path which was the very last path "/usr/bin/emacs-24.3."
+
+5.
+
+/usr/bin/gcc is version 4.8.5
+plain gcc is version 9.3.0
+There are different versions because they exist in separate directories in which one has been updated or was installed after and the other has not been updated or was installed previously.
+
+commands:
+man version
+/usr/bin/gcc -v
+gcc -v
+
+Read through man page for version and found the appropriate expression (-v).
+
+6.
+
+u+sx - this symbolic mode means the current owner is also given permission to set user or group ID and execution powers.
+o-w - this symbolic mode means the other users, who are not in the file group, no longer have permission to write on the file.
+
+commands:
+man chmod
+
+Read through man page for chmod to find what s was for but used information taught in lecture for u,o,+,-,x, and w.
+
+7.
+
+First 5 entries:
+
+/usr/local/cs
+/usr/local/cs/src/git
+/usr/local/cs/src/git/RCS
+/usr/local/cs/src/coreutils
+/usr/local/cs/src/coreutils/RCS
+/usr/local/cs/src/gcc
+
+446 total files modified in the past 28 days
+
+commands:
+man find
+find /usr/local/cs -type d -mtime -28
+find /usr/local/cs -type d -mtime -28 | wc -l
+
+I used "find /usr/local/cs -type d -mtime -28" to print the directories and to count them I used the pipeline operator with "wc -l" to count the number of newlines. I read through the page for  man find for both -mtime, which is the modification timestamp and for the proper expression following -type (d for directory). The '-' in front of 28 is to show less than or equal to rather than exact or greater than.
+
+8.
+
+292 Files in the same directory as find that are symbolic links
+
+commands:
+which find
+man find
+find /usr/bin -type l | wc -l
+
+
+I first used which find to obtain the directory find is located in. After reading through the man find page again I obtained the proper expression for -type (l) to test for symbolic links. After reading through man wc I found the proper expression (-l) to count for newlines and used the pipeline operator to count the number of symbolic links in the directory.
+
+9.
+
+librom1394.so.0.3.0 is the oldest file in /usr/lib64 (Dec 28, 2013)
+
+commands:
+man find
+man ls
+find /usr/lib64 -type f | ls -alt
+
+I used man find to find the proper test for regular files (-type f). Then used man ls to find the proper expressions to order and list the files. '-a' includes entries starting '.', '-l' gives the output in long listing format (includes timestamps), and '-t' sorts by time with the newest at the top based on modification time which is what we desire. The last command gives the output and the bottom most file is the oldest one.
+
+10.
+
+locale gets its data from localedef which in turn gets its data from a charmp and other input files.
+
+commands:
+man locale
+man localedef
+man charmap
+
+I used "man locale" and read through the examples and the "see also" which pointed me towards localedef and charmap. I then used "man localedef" and "man charmap" to see how localedef gets its data and outputs to locale.
+
+11.
+
+downcase-dwim, downcase-region, downcase-word
+
+Keypresses:
+"C-h a"
+"downcase"
+
+I used "C-h a" and then typed in "downcase" which gave me the three commands above.
+
+12.
+
+C-M-r - Incrementally searches for the regular expression as it is inputted (isearch-backward-regexp)
+C-M-v - Scroll the next window up and down based on the buffer (scroll-other-window)
+
+Keypresses:
+"C-h r"
+"C s"
+"C-M-r" (typed in literally C-M-r
+"enter"
+"C s"
+"C-M-v" (typed in literally C-M-v
+"enter"
+
+Went to emacs manual using "C-h r" and then used the regexp search and found each one of commands' descriptions.
+
+13.
+
+C-g - cancels a command that is currently running (keyboard-quit) and it works by setting the variable 'quit-flag' to 't' whenever the command is pressed.
+
+Keypresses:
+"C-h r"
+"C s"
+"C-g"
+"enter"
+"C s"
+"enter"
+"C s"
+"enter"
+"C s"
+"enter"
+"down"
+"right (7 times)"
+"enter"
+
+I found this in the same fashion as 12. First go to the manual and do a regular expression search for "C-g." I repeated this until I found a highlighted page called "quitting" which I went to and found a more
+explicit explanation for how C-g worked
+
+14.
+
+yank - means reinserting text previously killed and is bound to "Ctrl-y"
+
+Keypreses:
+"C-h r"
+"C s"
+"yank"
+"enter"
+"left" (until 'killing' highlighted page)
+"enter"
+"down" (until 'yanking' highlighted page)
+"enter"
+
+I found this in a fashion similar to 12 and 13. I went to the manual page by "C-h r" and then used a regexp search via "C s" and then typed "yank" and went to a page called killing which I also read through to get to yanking which I also read through.
+
+15.
+
+Dired gives a similar listing to ls -l but in additions allows you directly access the files using the enter key and edit them if you have the permission. The ls -l only gives the listing and the other information such as modification time, author, owner, permission, etc. but will not allow you to access the actual file within the shell like dired does. Dired also did include the current and parent directory through '.' and '..' which ls -l does not. ls -al does include this because it includes files that start with '.'.
+
+Keypresses:
+"C-h r"
+"C s"
+"dired"
+"enter"
+"down" (until I reached 'enter - how to invoke dired', a highlighted page)
+"enter"
+"C-x d"
+"/usr/bin/ enter"
+"C-x C-c"
+"ls -l /usr/bin"
+
+I again used "C-h r" to access the manual and then searched for dired using "C s" and then navigated down to enter to see that dired could be called using "C-x d." I then called dired on /usr/bin and "ls -l /usr/bin" to see the differences between the two.

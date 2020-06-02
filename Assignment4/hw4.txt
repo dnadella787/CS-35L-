@@ -1,0 +1,119 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+lnxsrv10
+
+Q1. The patched version of ls makes the performance, in terms of time, worse. I 
+    tested this using the time command across a few directories and generally 
+    speaking, the patched version did take longer. 
+
+    two of the test commands I used and their outputs:
+
+    commands:
+    cd /usr/bin
+    time /usr/bin/ls
+    time ~/A4Install/bin/ls
+    output for /usr/bin/ls:
+    real    0m0.016s
+    user    0m0.008s
+    sys     0m0.008s
+    output for ~/A4Install/bin/ls:
+    real    0m0.017s
+    user    0m0.006s
+    sys     0m0.010s
+
+    commands:
+    cd /usr/lib
+    time /usr/bin/ls
+    time ~/A4Install/bin/ls
+    output for /usr/bin/ls:
+    real    0m0.003s
+    user    0m0.003s
+    sys     0m0.000s
+    output for ~/A4Install/ls:
+    real    0m0.006s
+    user    0m0.003s
+    sys     0m0.000s
+
+Q2: If the company adopts the patched version of Coreutils then you now 
+    have to worry about the changed behavior of ls. Now the order of 
+    -a (or any other flags that invoke -a like -f) and -A actually 
+    matter in terms of the output. If any pieces of code that the 
+    company uses are specifically dependent on the pre-patch interaction 
+    between -a and -A in which -a always overrode -A irrelavent of order,
+    then they could behave not as intended if their order is incorrect.
+
+Q3. If randline.py is invoked on an empty file like /dev/null the following 
+    error is outputted:
+
+Traceback (most recent call last):
+File "./randline.py", line 70, in <module>
+    main()
+File "./randline.py", line 64, in main
+    sys.stdout.write(generator.chooseline())
+File "./randline.py", line 34, in chooseline
+    return random.choice(self.lines)
+File "/usr/lib64/python2.7/random.py", line 274, in choice
+    return seq[int(self.random() * len(seq))]  
+    # raises IndexError if seq is empty
+IndexError: list index out of range
+
+    This error occurs because the chooseline function tries to call and return
+    the choice function from the imported random module. When choice is called,
+    the variable lines is passed in as a parameter. Lines is a list that 
+    contains lines from the file that was passed into randline.py as a paremeter
+    with each line in a separate index and is created through the readlines()
+    function. Thus if the file passed into randline.py is empty, like /dev/null,
+    the lines list will be empty. This causes a problem because the choice 
+    function from random tries to return a completely random index from lines 
+    but it cannot because lines is empty. More specifically, the choice 
+    function is trying to access lines[0] (since the length of lines is 0 
+    so self.random() * len(seq) = 0) but since lines is an empty list, lines[0] 
+    does not exist. Thus, for empty files an index error is produced which 
+    explains the last line of the error:"IndexError: list index out of range."
+
+    commands:
+    ./randline.py /dev/null
+    emacs randline.py
+    emacs /usr/lib64/python2.7/random.py
+
+Q4. Running randline.py using python3 causes the following syntax error:
+
+    File "./randline.py", line 65
+        except IOError as (errno, strerror):
+                        ^
+    SyntaxError: invalid syntax
+
+    This error occurs because of syntactical differences between python3 
+    and earlier versions of python. More specifically, line 65 attempts 
+    to use python2 syntax in which you can iterate over different types
+    of exceptions by placing them all in a tuple. Python3 no longer 
+    allows for the tuple to be iterated over therefore causing a syntax error. 
+
+    commands:
+    python3 ./randline.py
+
+Q5. When my shuf.py is invoked with python2 instead of python3, my code works 
+    completely fine syntactically and in almost all of the actual use cases 
+    except for when there should be infinite output. When I try something like:
+
+    python2 shuf.py -r -i 1-10
+
+    I get the following error:
+
+    Traceback (most recent call last):
+    File "shuf.py", line 147, in <module>
+        main()
+    File "shuf.py", line 139, in main
+        generator.output()
+    File "shuf.py", line 32, in output
+        for i in range(self.n_count):
+    MemoryError
+
+    I think that I get this error because there is a difference between what 
+    my system max capable integer is since it is a 64 bit platform so I assume 
+    the max is (2^63)-1 or something close while python2 can only handle 32 bit
+    causing a MemoryError. Other than this, syntactically speaking my code runs 
+    perfectly fine because all of the syntax I used in the script was included 
+    in python2. The argparse module also seemed to work fine in python2 and thus
+    there were no syntax errors.
+

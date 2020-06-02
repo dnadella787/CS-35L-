@@ -1,0 +1,53 @@
+Dhanush Nadella
+TA: Daniel Meirovitch
+done on lnxsrv10
+
+Assignment 2: SSH setup and use in applications
+
+GPG Key Pair Creation Log:
+
+I first read through the man page for gpg2 to find the proper shell commands to do the assignment. I then ran gpg2 --version to find where the .gnupg file was. It did not exist so it was
+created under the home directory. I then ran the --gen-key command and proceeded to enter the information to create the actual key.
+
+After, I exported the key in ASCII using --armor into hw-pubkey.asc. After the public key was created, I created a detached signature for the file using -b into a file called hw-pubkey.sig
+using --output.
+
+Commands/Inputs:
+man gpg2
+gpg2 --version
+gpg2 --gen-key
+Type of key: RSA and RSA (default)
+Keysize: 2048
+Key does not expire (0)
+Real Name: Dhanush Nadella
+email: dnadella787@g.ucla.edu
+comment: Assignment 2 GPG HW Key
+Passphrase: gpg2HW02
+gpg2 --armor --export dnadella787@g.ucla.edu > hw-pubkey.asc
+gpg2 --output hw-pubkey.sig -b hw-pubkey.asc
+
+
+to check: gpg --verify hw-pubkey.sig hw-pubkey.asc
+outputs:
+gpg: Signature made Wed 08 Apr 2020 10:58:09 PM PDT using RSA key ID 04800EAD
+gpg: Good signature from "Dhanush Nadella (Assignment 2 GPG HW Key) <dnadella787@g.ucla.edu>"
+
+
+Questions:
+1. Even if a hacker managed to sniff the network traffic, they could not gain access to my account or the linux server because we are using asymeteric encryption. By sniffing network
+traffic, the hacker would only gain acess to data being sent through the connection that is already encrypted using the public key, which they cannot decrypt without the private key
+that is only located on the client and host and is also under a passphrase protection. Thus any information being sent through they cannot actually make sense of unless they were to break
+the encryption, which is highly unlikely considering the time it would take.
+
+If the hacker had placed a keylogger on the client machine, then they would be able to access both my account and the linux server because they would have access to my username
+and password for my SEAS account along with the passphrase for the private key which they could use to decipher all network data flow. It would also allow them to directly SSH
+into the linux server using that passphrase once they got into my SEAS account. Even if they do not directly get access to the private key they would be eventually able to get
+access to it.
+
+Assuming that both the public and private key are on the USB, then the hacker would indeed be able to access the linux server and my account by decrypting the network data flow using
+the private key off the USB. This would give them the ability to decrypt passphrases, login information, and other important information to get access to both.
+
+2. The verification process only compares the decrypted signature and the hashed data, not necessarily who created the data. As long as you are able to generate whilst having access
+to the same hash function and private key you could generate the proper signature that would pass the --verify command. The only way you could truly verify who the data came from is if
+to obtain the data you are sending, others must obtain the data off some other website that uses accounts or profiles to manage ownership. This way when others download it, they can be
+sure that it is you who they are getting the data from. 

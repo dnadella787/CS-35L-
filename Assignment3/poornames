@@ -1,0 +1,162 @@
+#!/usr/bin/bash
+
+
+
+
+#checks whether non-recursive or not
+#checks whether directories exist, readable, etc
+#check number of arguments
+#execute approprirate function call
+checkArguments() {
+    #if no arguments passed, dir = .
+    if [ $# -eq 0 ]; then
+	dir="."
+	nonRecursiveCheck $dir
+    #if more than two arguments passed
+    elif [ $# -gt 2 ]; then
+	1>&2 echo "Too many arguments passed"
+	exit 1
+    #two arguments passed, check if recursive 	
+    elif [ $# -eq 2 ]; then
+	if [ $1 == '-r' ]; then
+	    dir=$2
+	    #check dir exists, readable, etc
+	    if [ ! -d "$dir" ]; then
+		1>&2 echo "${dir} is not a directory" 
+		exit 1
+	    elif [ -L "$dir" ]; then
+		1>&2 echo "${dir} is a symlink"
+	    elif [ ! -r "$dir" ]; then
+		1>&2 echo "${dir} doesn't have read access"
+	    fi
+	    recursiveCheck $dir
+	else
+	    1>&2 echo "too many arguments passed"
+	    exit 1
+	fi
+    #recursive call on pwd
+    elif [ $1 == "-r" ]; then
+	dir="."
+	recursiveCheck $dir
+    #dir begins with -
+    elif [ ${1:0:1} == '-' ]; then
+	1>&2 echo "directory name begins with -"
+	exit 1
+    #nonrecursive call
+    else
+	dir=$1
+	#check if the given argument is a directory
+	if [ ! -d "$dir" ];then
+	    1>&2 echo "$dir is not a directory"
+	    exit 1
+	elif [ -L "$dir" ]; then
+	    1>&2 echo "${dir} is a symlink"
+	elif [ ! -r "$dir" ]; then
+	    1>&2 echo "${dir} doesn't have read access"
+	fi
+	nonRecursiveCheck $dir
+    fi
+
+    
+}
+
+
+
+nonRecursiveCheck(){
+    dir=$1
+    #removes / at the end if there for regex searches
+    x=$((${#dir}-1))
+    if [ "${dir:$x:1}" == "/" ]; then
+	dir=${dir%?}
+    fi
+
+     
+    #all directories
+    allDirs="$(find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null | sort )"
+    #files that dont match the proper regex pattern
+    wrongFiles="$(find "$dir" -mindepth 1 -maxdepth 1 -type f -o -type l \
+        2>/dev/null |
+        grep -vE "${dir}\/[A-Za-z_][A-Za-z_.-]{0,13}$")"
+    #directories that dont match the proper regex pattern
+    wrongDirs="$(find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null |
+    	grep -vE "${dir}\/[A-Za-z_][A-Za-z_.-]{0,13}$")"
+    #files that are duplicates
+    fileDups="$(find "$dir" -mindepth 1 -maxdepth 1 -type f -o -type l \
+        2>/dev/null |
+        grep -E "${dir}\/[A-Za-z_][A-Za-z_.-]{0,13}$" |
+        sort -f | uniq -iD | sort)"
+    #directories that are duplicates
+    dirDups="$(find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null |
+        grep -E "${dir}\/[A-Za-z_][A-Za-z_.-]{0,13}$" |
+        sort -f | uniq -iD | sort)"
+    #files that match pattern
+    fileRest="$(find "$dir" -mindepth 1 -maxdepth 1 -type f -o -type l \
+        2>/dev/null |
+        grep -E "${dir}\/[A-Za-z_][A-Za-z_.-]{0,13}$" | sort)"
+    #files that match pattern and arent file duplicates
+    DUPS="$(comm -23 <(echo "${fileRest}") <(echo "${fileDups}"))"
+    #all other directorires
+    dirRest="$(find "$dir" -mindepth 1 -maxdepth 1 -type d 2>/dev/null |
+        grep -E "${dir}\/[A-Za-z_][A-Za-z_.-]{0,13}$" | sort)"
+
+
+    #directories that match pattern and arent dir duplicates
+    DUPS2="$(comm -23 <(echo "${dirRest}") <(echo "${dirDups}"))"
+    #put all other entries together
+    DUPS3="$(appendFunction "${DUPS}" "${DUPS2}")"
+    #check for duplicates amongst these
+    DUPS4="$(echo "${DUPS3}" | sort -f | uniq -iD)"
+    #find which are directories
+    dirDups2="$(comm -12 <(echo "${DUPS4}") <(echo "${allDirs}"))"
+    #add duplicate directories var
+    dirDups3="$(appendFunction "${dirDups}" "${dirDups2}")"
+    #duplicates in rest that are files
+    fileDups2="$(comm -23 <(echo "${DUPS4}") <(echo "${allDirs}"))"
+    #add to file duplicates
+    fileDups3="$(appendFunction "${fileDups}" "${fileDups2}")"
+    #put all files and directories together
+    wrongFiles2="$(appendFunction "${wrongFiles}" "${fileDups3}")"
+    wrongDirs2="$(appendFunction "${wrongDirs}" "${dirDups3}")"
+
+    #output only if anything is in the variable
+    if [ ! -z "${wrongFiles2}" ]; then
+    	echo "${wrongFiles2}"
+    fi
+    #append / to end of directories
+    if [ ! -z "${wrongDirs2}" ]; then
+    	echo "${wrongDirs2}" | sed 's/$/\//g'
+    fi
+
+
+}
+
+
+
+#recursive function, uses non-recursive function on entries
+recursiveCheck(){
+    #find all subdirectories
+    directories="$(find "$1" -type d 2>/dev/null)"
+    
+    #execute nonRecursiveCheck on all entries
+    IFS=$'\n'
+    for entry in $(echo "${directories}"); do
+	#first check each entry
+    	checkArguments "${entry}"
+    done
+
+
+    
+}
+
+
+
+#helper function to append two variables properly
+appendFunction() {
+    printf '%s' "${1:+$1$'\n'}" "${2:+$2$'\n'}"
+}
+
+
+#take args passed in and check them
+checkArguments $@
+
+    
