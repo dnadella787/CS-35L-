@@ -62,20 +62,25 @@ def get_topo_ordered_commits(commit_nodes, root_hashes):
     order = []
     visited = set()
     stack = list(root_hashes.copy())
+    children_not_processed = []
    
     while len(stack) != 0:
-        v = stack[-1]
+        v = stack.pop()
+        if v in order:
+            continue
+            
         visited.add(v)
         
-        temp_stack = []
+        children_not_processed.clear()
         for child in commit_nodes[v].children:
             if child not in visited:
-                temp_stack.append(child)
+                children_not_processed.append(child)
         
-        if len(temp_stack) != 0:
-            stack.append(temp_stack[0])
+        if len(children_not_processed) == 0:
+            order.append(v)
         else:
-            order.append(stack.pop())
+            stack.append(v)
+            stack += children_not_processed
 
     return order
 
@@ -153,7 +158,6 @@ def get_local_branches(path, local_branch_files, local_branch_hashes):
 
 
 
-
 def get_git_directory():
     curr_dir = os.getcwd()
     while True:
@@ -177,3 +181,5 @@ def get_git_directory():
 
 if __name__ == "__main__":
     topo_order_commits() 
+
+    
