@@ -1,6 +1,6 @@
 # CS-35L
 
-All 9 of my assignments for CS 35L Spring 2020 with Eggert. All of the assignments can be found here:https://web.cs.ucla.edu/classes/spring20/cs35L/assign.html
+All 9 of my assignments for CS 35L Spring 2020 with Eggert. All of the assignments can be found here: https://web.cs.ucla.edu/classes/spring20/cs35L/assign.html
 
 
 | Assignment | Score |
