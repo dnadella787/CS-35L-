@@ -1,0 +1,1 @@
+This assignment exemplifies usage of SSH tools in linux to access different university linux servers. Such tools include SSH-agent, SSH keys for authentication, and a config file for multi hopping servers and automatic authentication. The assignment also introduces the usage of GPG verification tools to export files with a detached signature and a corresponding key. 

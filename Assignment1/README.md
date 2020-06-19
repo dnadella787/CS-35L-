@@ -1,0 +1,1 @@
+This assignment provides an introduction to the linux command line and also to usage of GNU emacs. 

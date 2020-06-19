@@ -1,0 +1,1 @@
+The lab portion was based on making a change to an older version of coreutils to fix a bug. Once the bug was fixed a patch was created and applied. The sfrob.c is a C program that takes in input from stdin, unfrobnicates it, sorts it, then outputs to stdout. 

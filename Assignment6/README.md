@@ -1,0 +1,1 @@
+sfrobu.c is another implementation of sfrob.c except instead of using buffered I/O like putchar and getchar,system calls are used to take in input from stdin and output to stdout. The lab portion was focused on writing a buffered and unbuffered version of the linux tr command. The implementation did not include any support for flags.

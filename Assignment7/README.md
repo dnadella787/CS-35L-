@@ -1,0 +1,1 @@
+The lab portion of this assignment was focused around using strace and ldd to see which system calls and dynamic libraries were used in a certain file. The homework portion was to rewrite a file into several different c files that could be dynamically linked and loaded. 

@@ -1,0 +1,1 @@
+This assignment is a python partial implementation of the GNU shuf command. This implementation includes support for flags -i, -r, and -n. The lab portion was focused on using the patch command to make a fix to an older version of coreutils. 

@@ -1,0 +1,1 @@
+This assignment was an introduction to basic usage of git and how to navigate git log and git status for a repository. The homework portion was specifically focused on reverting changes made to files through git format patch.

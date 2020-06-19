@@ -1,0 +1,1 @@
+The lab portion of this assignment was focused on using more specified git command such as git rev-list to find out specific information about changes made to the repository. The hw portion is a python script that outputs a topological sort of git commits.
